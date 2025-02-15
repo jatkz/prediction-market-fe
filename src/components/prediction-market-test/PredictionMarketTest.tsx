@@ -2,6 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { AlertCircle } from 'lucide-react';
 
+export interface MarketState {
+  yesSupply: number;
+  noSupply: number;
+  yesPrice: number;
+  noPrice: number;
+  collateralPool: number;
+  priceHistory: Array<{
+    time: string;
+    yesPrice: number;
+    noPrice: number;
+  }>;
+}
+
 export const PredictionMarketTest: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
   
@@ -9,7 +22,7 @@ export const PredictionMarketTest: React.FC = () => {
     setIsClient(true);
   }, []);
 
-  const [marketState, setMarketState] = useState({
+  const [marketState, setMarketState] = useState<MarketState>({
     yesSupply: 1000,
     noSupply: 1000,
     yesPrice: 0.5,
