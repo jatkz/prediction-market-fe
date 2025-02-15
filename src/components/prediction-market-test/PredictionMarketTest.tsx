@@ -7,6 +7,8 @@ export const PredictionMarketTest: React.FC = () => {
   
   useEffect(() => {
     setIsClient(true);
+    console.log('Component mounted');
+
   }, []);
 
   const [marketState, setMarketState] = useState({
