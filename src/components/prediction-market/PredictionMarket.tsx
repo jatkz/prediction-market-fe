@@ -62,7 +62,7 @@ export const PredictionMarket: React.FC = () => {
     <div className="space-y-6 p-4">
       <Card>
         <CardHeader>
-          <CardTitle>Prediction Market: "Will it rain on March 14, 2025?"</CardTitle>
+          <CardTitle>Prediction Market: &ldquo;Will it rain on March 14, 2025?&rdquo;</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-6">
