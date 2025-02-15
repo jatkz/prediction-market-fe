@@ -11,11 +11,13 @@
 // }
 
 import PredictionMarketTest from '@/components/prediction-market-test/PredictionMarketTest';
+import TwitterMentions from '@/components/twitter-mentions/TwitterMentions';
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50">
       <PredictionMarketTest />
+      {/* <TwitterMentions /> */}
     </main>
   );
 }

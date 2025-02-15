@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
+
+interface User {
+  id: string;
+  name: string;
+  yesTokens: number;
+  noTokens: number;
+  totalTrades: number;
+}
 
 export interface MarketState {
   yesSupply: number;
@@ -17,6 +26,7 @@ export interface MarketState {
 
 export const PredictionMarketTest: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
   
   useEffect(() => {
     setIsClient(true);
@@ -33,9 +43,45 @@ export const PredictionMarketTest: React.FC = () => {
     ]
   });
 
+  const [users, setUsers] = useState<User[]>([
+    {
+      id: '1',
+      name: 'Alice',
+      yesTokens: 0,
+      noTokens: 0,
+      totalTrades: 0
+    },
+    {
+      id: '2',
+      name: 'Bob',
+      yesTokens: 0,
+      noTokens: 0,
+      totalTrades: 0
+    },
+    {
+      id: '3',
+      name: 'Charlie',
+      yesTokens: 0,
+      noTokens: 0,
+      totalTrades: 0
+    },
+    {
+      id: '4',
+      name: 'Diana',
+      yesTokens: 0,
+      noTokens: 0,
+      totalTrades: 0
+    }
+  ]);
+
+  const getAvatarUrl = (name: string) => {
+    // Using DiceBear Avatars with Bottts style
+    return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`;
+  };
+
   const [tradeAmount, setTradeAmount] = useState(100);
 
-  const simulateTrade = (buyYes: boolean) => {
+  const simulateTrade = (buyYes: boolean, userId?: string) => {
     const amount = Number(tradeAmount);
     const collateral = amount * 0.1;
     const newYesSupply = marketState.yesSupply + (buyYes ? amount : 0);
@@ -60,6 +106,21 @@ export const PredictionMarketTest: React.FC = () => {
       collateralPool: marketState.collateralPool + collateral,
       priceHistory: [...marketState.priceHistory, newPricePoint]
     });
+
+    // Update user's tokens if a user is specified
+    if (userId) {
+      setUsers(users.map(user => {
+        if (user.id === userId) {
+          return {
+            ...user,
+            yesTokens: user.yesTokens + (buyYes ? amount : 0),
+            noTokens: user.noTokens + (buyYes ? 0 : amount),
+            totalTrades: user.totalTrades + 1
+          };
+        }
+        return user;
+      }));
+    }
   };
 
   if (!isClient) {
@@ -112,13 +173,13 @@ export const PredictionMarketTest: React.FC = () => {
                 className="w-full sm:w-auto border p-2 rounded-lg"
               />
               <button 
-                onClick={() => simulateTrade(true)}
+                onClick={() => simulateTrade(true, selectedUser || undefined)}
                 className="w-full sm:w-auto bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
               >
                 Buy YES
               </button>
               <button 
-                onClick={() => simulateTrade(false)}
+                onClick={() => simulateTrade(false, selectedUser || undefined)}
                 className="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
               >
                 Buy NO
@@ -128,6 +189,46 @@ export const PredictionMarketTest: React.FC = () => {
             <div className="flex items-center space-x-2 text-amber-600">
               <AlertCircle size={20} />
               <p>Collateral Pool: ${marketState.collateralPool.toFixed(2)}</p>
+            </div>
+          </div>
+
+          {/* Traders Section */}
+          <div className="mt-8">
+            <h3 className="text-lg font-bold mb-4">Market Traders</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {users.map((user) => (
+                <Card 
+                  key={user.id}
+                  className={`cursor-pointer transition-colors ${
+                    selectedUser === user.id ? 'ring-2 ring-blue-500' : ''
+                  }`}
+                  onClick={() => setSelectedUser(user.id === selectedUser ? null : user.id)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-3">
+                      <img 
+                        src={getAvatarUrl(user.name)} 
+                        alt={user.name} 
+                        className="w-10 h-10 rounded-full"
+                      />
+                      <div>
+                        <h4 className="font-bold">{user.name}</h4>
+                        <p className="text-sm text-gray-500">Trades: {user.totalTrades}</p>
+                      </div>
+                    </div>
+                    <div className="mt-3 space-y-1">
+                      <div className="flex items-center text-sm">
+                        <TrendingUp className="w-4 h-4 mr-2 text-green-500" />
+                        <span>YES Tokens: {user.yesTokens}</span>
+                      </div>
+                      <div className="flex items-center text-sm">
+                        <TrendingDown className="w-4 h-4 mr-2 text-blue-500" />
+                        <span>NO Tokens: {user.noTokens}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         </div>
