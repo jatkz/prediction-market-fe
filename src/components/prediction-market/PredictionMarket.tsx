@@ -1,15 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { AlertCircle, TrendingUp, TrendingDown } from 'lucide-react';
+import { AlertCircle, TrendingUp, TrendingDown, Wallet, Coins } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
+import { ethers } from 'ethers';
+
 
 interface User {
   id: string;
   name: string;
+  ethAddress: string;
   yesTokens: number;
   noTokens: number;
   totalTrades: number;
+  ethBalance: string;
+  usdcBalance: string;
 }
+
+// USDC Contract ABI (minimal for balance checking)
+const USDC_ABI = [
+  "function balanceOf(address owner) view returns (uint256)",
+  "function decimals() view returns (uint8)",
+] as const;
+
+const USDC_CONTRACT_ADDRESS = "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238";
 
 export interface MarketState {
   yesSupply: number;
@@ -27,6 +40,7 @@ export interface MarketState {
 export const PredictionMarketTest: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
   
   useEffect(() => {
     setIsClient(true);
@@ -47,37 +61,91 @@ export const PredictionMarketTest: React.FC = () => {
     {
       id: '1',
       name: 'Alice',
+      ethAddress: process.env.NEXT_PUBLIC_ALICE_PUBLIC_KEY || '',
       yesTokens: 0,
       noTokens: 0,
-      totalTrades: 0
+      totalTrades: 0,
+      ethBalance: '0',
+      usdcBalance: '0'
     },
     {
       id: '2',
       name: 'Bob',
+      ethAddress: process.env.NEXT_PUBLIC_BOB_PUBLIC_KEY || '',
       yesTokens: 0,
       noTokens: 0,
-      totalTrades: 0
+      totalTrades: 0,
+      ethBalance: '0',
+      usdcBalance: '0'
     },
     {
       id: '3',
       name: 'Charlie',
+      ethAddress: process.env.NEXT_PUBLIC_CHARLIE_PUBLIC_KEY || '',
       yesTokens: 0,
       noTokens: 0,
-      totalTrades: 0
+      totalTrades: 0,
+      ethBalance: '0',
+      usdcBalance: '0'
     },
     {
       id: '4',
       name: 'Diana',
+      ethAddress: process.env.NEXT_PUBLIC_DIANA_PUBLIC_KEY || '',
       yesTokens: 0,
       noTokens: 0,
-      totalTrades: 0
+      totalTrades: 0,
+      ethBalance: '0',
+      usdcBalance: '0'
     }
   ]);
+
+  useEffect(() => {
+    const fetchBalances = async () => {
+      const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL);
+      const usdcContract = new ethers.Contract(USDC_CONTRACT_ADDRESS, USDC_ABI, provider);
+
+      const updatedUsers = await Promise.all(users.map(async (user) => {
+        try {
+          const ethBalance = await provider.getBalance(user.ethAddress);
+          const usdcBalance = await usdcContract.balanceOf(user.ethAddress);
+          const usdcDecimals = await usdcContract.decimals();
+
+          return {
+            ...user,
+            ethBalance: ethers.formatEther(ethBalance),
+            usdcBalance: ethers.formatUnits(usdcBalance, usdcDecimals)
+          };
+        } catch (error) {
+          console.error(`Error fetching balances for ${user.name}:`, error);
+          return user;
+        }
+      }));
+
+      setUsers(updatedUsers);
+    };
+
+    if (isClient) {
+      fetchBalances();
+    }
+  }, [isClient]);
 
   const getAvatarUrl = (name: string) => {
     // Using DiceBear Avatars with Bottts style
     return `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(name)}`;
   };
+
+  const copyToClipboard = async (address: string) => {
+    await navigator.clipboard.writeText(address);
+    setCopiedAddress(address);
+    setTimeout(() => setCopiedAddress(null), 2000);
+  };
+
+  const formatAddress = (address: string) => {
+    if (!address) return 'No address';
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
 
   const [tradeAmount, setTradeAmount] = useState(100);
 
@@ -207,16 +275,17 @@ export const PredictionMarketTest: React.FC = () => {
                   <CardContent className="p-4">
                     <div className="flex items-center space-x-3">
                       <img 
-                        src={getAvatarUrl(user.name)} 
+                        src={getAvatarUrl(user.name)}
                         alt={user.name} 
-                        className="w-10 h-10 rounded-full"
+                        className="w-10 h-10 rounded-full bg-gray-100"
                       />
                       <div>
                         <h4 className="font-bold">{user.name}</h4>
                         <p className="text-sm text-gray-500">Trades: {user.totalTrades}</p>
                       </div>
                     </div>
-                    <div className="mt-3 space-y-1">
+
+                    <div className="mt-3 space-y-2">
                       <div className="flex items-center text-sm">
                         <TrendingUp className="w-4 h-4 mr-2 text-green-500" />
                         <span>YES Tokens: {user.yesTokens}</span>
@@ -225,6 +294,18 @@ export const PredictionMarketTest: React.FC = () => {
                         <TrendingDown className="w-4 h-4 mr-2 text-blue-500" />
                         <span>NO Tokens: {user.noTokens}</span>
                       </div>
+                      <div className="flex items-center text-sm">
+                        <Wallet className="w-4 h-4 mr-2 text-purple-500" />
+                        <span>ETH: {Number(user.ethBalance).toFixed(4)}</span>
+                      </div>
+                      <div className="flex items-center text-sm">
+                        <Coins className="w-4 h-4 mr-2 text-yellow-500" />
+                        <span>USDC: {Number(user.usdcBalance).toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="mt-2 text-xs text-gray-500 truncate">
+                      {user.ethAddress}
                     </div>
                   </CardContent>
                 </Card>
