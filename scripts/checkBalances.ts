@@ -1,10 +1,15 @@
 // scripts/checkBalances.ts
-const { ethers } = require('ethers');
-const { config } = require('dotenv');
-const path = require('path');
+import { ethers } from 'ethers';
+import * as dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Setup dirname for ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load environment variables from .env.local
-config({ path: path.resolve(__dirname, '../.env.local') });
+dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 // USDC Contract ABI (minimal for balance checking)
 const USDC_ABI = [

@@ -2,11 +2,12 @@
   "name": "prediction-market",
   "version": "0.1.0",
   "private": true,
+"type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "check-balances": "node --loader ts-node/esm scripts/checkBalances.ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
