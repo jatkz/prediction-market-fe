@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { AlertCircle, TrendingUp, TrendingDown, Wallet, Coins, Check, Copy } from 'lucide-react';
+import { AlertCircle, TrendingUp, TrendingDown, Wallet, Coins, Check, Copy, Trophy } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+
 import { ethers } from 'ethers';
 
 
@@ -41,6 +45,8 @@ export const PredictionMarketTest: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
+  const [isResolved, setIsResolved] = useState(false);
+  const [winner, setWinner] = useState<'yes' | 'no' | null>(null);
   
   useEffect(() => {
     setIsClient(true);
@@ -325,6 +331,97 @@ export const PredictionMarketTest: React.FC = () => {
               ))}
             </div>
           </div>
+
+          {/* Market Resolution Section */}
+          <div className="mt-8">
+            <Card>
+              <CardContent className="p-6">
+                <h3 className="text-lg font-bold mb-4">Resolve Market</h3>
+                
+                {!isResolved ? (
+                  <div className="space-y-4">
+                    <RadioGroup 
+                      value={winner || ''} 
+                      onValueChange={(value) => setWinner(value as 'yes' | 'no')}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="yes" id="yes" />
+                        <Label htmlFor="yes">Yes - It rained on March 14, 2025</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="no" />
+                        <Label htmlFor="no">No - It did not rain on March 14, 2025</Label>
+                      </div>
+                    </RadioGroup>
+
+                    <Button 
+                      onClick={() => setIsResolved(true)}
+                      disabled={!winner}
+                      className="w-full"
+                    >
+                      Resolve Market
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="p-4 bg-green-50 rounded-lg">
+                      <p className="font-medium text-green-800">
+                        Market Resolved: {winner === 'yes' ? 'It rained!' : 'It did not rain!'}
+                      </p>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h4 className="font-semibold">Results:</h4>
+                      {users.map((user) => {
+                        const winningTokens = winner === 'yes' ? user.yesTokens : user.noTokens;
+                        const losingTokens = winner === 'yes' ? user.noTokens : user.yesTokens;
+                        const hasWinningTokens = winningTokens > 0;
+
+                        return (
+                          <div 
+                            key={user.id}
+                            className={`p-4 rounded-lg ${
+                              hasWinningTokens ? 'bg-blue-50' : 'bg-gray-50'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-3">
+                                <img 
+                                  src={getAvatarUrl(user.name)}
+                                  alt={user.name} 
+                                  className="w-8 h-8 rounded-full bg-gray-100"
+                                />
+                                <div>
+                                  <p className="font-medium">{user.name}</p>
+                                  <p className="text-sm text-gray-500">
+                                    {hasWinningTokens ? (
+                                      <span className="flex items-center text-green-600">
+                                        <Trophy className="w-4 h-4 mr-1" />
+                                        Winner
+                                      </span>
+                                    ) : 'No winning tokens'}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-medium">
+                                  {winningTokens} {winner?.toUpperCase()} tokens
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                  {losingTokens} losing tokens
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
         </div>
       </div>
     </div>
