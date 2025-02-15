@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { AlertCircle, TrendingUp, TrendingDown, Wallet, Coins } from 'lucide-react';
+import { AlertCircle, TrendingUp, TrendingDown, Wallet, Coins, Check, Copy } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { ethers } from 'ethers';
 
@@ -266,49 +266,62 @@ export const PredictionMarketTest: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {users.map((user) => (
                 <Card 
-                  key={user.id}
-                  className={`cursor-pointer transition-colors ${
-                    selectedUser === user.id ? 'ring-2 ring-blue-500' : ''
-                  }`}
-                  onClick={() => setSelectedUser(user.id === selectedUser ? null : user.id)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-3">
-                      <img 
-                        src={getAvatarUrl(user.name)}
-                        alt={user.name} 
-                        className="w-10 h-10 rounded-full bg-gray-100"
-                      />
-                      <div>
-                        <h4 className="font-bold">{user.name}</h4>
-                        <p className="text-sm text-gray-500">Trades: {user.totalTrades}</p>
-                      </div>
+                key={user.id}
+                className={`cursor-pointer transition-colors ${
+                  selectedUser === user.id ? 'ring-2 ring-blue-500' : ''
+                }`}
+                onClick={() => setSelectedUser(user.id === selectedUser ? null : user.id)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <img 
+                      src={getAvatarUrl(user.name)}
+                      alt={user.name} 
+                      className="w-10 h-10 rounded-full bg-gray-100"
+                    />
+                    <div>
+                      <h4 className="font-bold">{user.name}</h4>
+                      <p className="text-sm text-gray-500">Trades: {user.totalTrades}</p>
                     </div>
+                  </div>
 
-                    <div className="mt-3 space-y-2">
-                      <div className="flex items-center text-sm">
-                        <TrendingUp className="w-4 h-4 mr-2 text-green-500" />
-                        <span>YES Tokens: {user.yesTokens}</span>
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <TrendingDown className="w-4 h-4 mr-2 text-blue-500" />
-                        <span>NO Tokens: {user.noTokens}</span>
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <Wallet className="w-4 h-4 mr-2 text-purple-500" />
-                        <span>ETH: {Number(user.ethBalance).toFixed(4)}</span>
-                      </div>
-                      <div className="flex items-center text-sm">
-                        <Coins className="w-4 h-4 mr-2 text-yellow-500" />
-                        <span>USDC: {Number(user.usdcBalance).toFixed(2)}</span>
-                      </div>
+                  <div className="mt-3 space-y-2">
+                    <div className="flex items-center text-sm">
+                      <TrendingUp className="w-4 h-4 mr-2 text-green-500" />
+                      <span>YES Tokens: {user.yesTokens}</span>
                     </div>
+                    <div className="flex items-center text-sm">
+                      <TrendingDown className="w-4 h-4 mr-2 text-blue-500" />
+                      <span>NO Tokens: {user.noTokens}</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <Wallet className="w-4 h-4 mr-2 text-purple-500" />
+                      <span>ETH: {Number(user.ethBalance).toFixed(4)}</span>
+                    </div>
+                    <div className="flex items-center text-sm">
+                      <Coins className="w-4 h-4 mr-2 text-yellow-500" />
+                      <span>USDC: {Number(user.usdcBalance).toFixed(2)}</span>
+                    </div>
+                  </div>
 
-                    <div className="mt-2 text-xs text-gray-500 truncate">
-                      {user.ethAddress}
-                    </div>
-                  </CardContent>
-                </Card>
+                  <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                    <span className="truncate">{formatAddress(user.ethAddress)}</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyToClipboard(user.ethAddress);
+                      }}
+                      className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                    >
+                      {copiedAddress === user.ethAddress ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                </CardContent>
+              </Card>
               ))}
             </div>
           </div>
