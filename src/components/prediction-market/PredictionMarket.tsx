@@ -16,12 +16,6 @@ interface TradeParams {
   userId?: string;
 }
 
-interface MarketPrices {
-  yesPrice: number;
-  noPrice: number;
-  time: string;
-}
-
 interface User {
   id: string;
   name: string;
@@ -111,7 +105,6 @@ export const PredictionMarketTest: React.FC = () => {
 
   const {
     isLoading,
-    error,
     createMarket,
     buyTokens,
     sellTokens,
@@ -161,8 +154,6 @@ export const PredictionMarketTest: React.FC = () => {
     }
   };
   
-
-
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -216,22 +207,22 @@ export const PredictionMarketTest: React.FC = () => {
     }
   };
   
-    // Main trade handler
-    const handleTrade = async (action: 'buy' | 'sell', isYes: boolean) => {
-      const tradeParams: TradeParams = {
-        action,
-        isYes,
-        amount: Number(tradeAmount),
-        userId: selectedUser?.id
-      };
-
-      try {
-          await executeOnChainTrade(tradeParams);
-      } catch (error) {
-        // Handle error (could show a notification or alert)
-        console.error('Trade failed:', error);
-      }
+  // Main trade handler
+  const handleTrade = async (action: 'buy' | 'sell', isYes: boolean) => {
+    const tradeParams: TradeParams = {
+      action,
+      isYes,
+      amount: Number(tradeAmount),
+      userId: selectedUser?.id
     };
+
+    try {
+        await executeOnChainTrade(tradeParams);
+    } catch (error) {
+      // Handle error (could show a notification or alert)
+      console.error('Trade failed:', error);
+    }
+  };
 
   
   useEffect(() => {
@@ -280,82 +271,25 @@ export const PredictionMarketTest: React.FC = () => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-
   const [tradeAmount, setTradeAmount] = useState(100);
 
-  const simulateTrade = (buyYes: boolean, userId?: string) => {
-    const amount = Number(tradeAmount);
-    const collateral = amount * 0.1;
-    const newYesSupply = marketState.yesSupply + (buyYes ? amount : 0);
-    const newNoSupply = marketState.noSupply + (buyYes ? 0 : amount);
+  // Handles on-chain trades
+  const executeOnChainTrade = async (params: TradeParams) => {
+    if (!selectedUser) return;
     
-    const k = marketState.yesSupply * marketState.noSupply;
-    const newYesPrice = k / (newYesSupply * marketState.noSupply);
-    const newNoPrice = k / (marketState.yesSupply * newNoSupply);
-
-    const newPricePoint = {
-      time: marketState.priceHistory.length.toString(),
-      yesPrice: buyYes ? newYesPrice : marketState.yesPrice,
-      noPrice: buyYes ? marketState.noPrice : newNoPrice
-    };
-
-    setMarketState({
-      ...marketState,
-      yesSupply: newYesSupply,
-      noSupply: newNoSupply,
-      yesPrice: newYesPrice,
-      noPrice: newNoPrice,
-      collateralPool: marketState.collateralPool + collateral,
-      priceHistory: [...marketState.priceHistory, newPricePoint]
-    });
-
-    // Update user's tokens if a user is specified
-    if (userId) {
-      setUsers(users.map(user => {
-        if (user.id === userId) {
-          return {
-            ...user,
-            yesTokens: user.yesTokens + (buyYes ? amount : 0),
-            noTokens: user.noTokens + (buyYes ? 0 : amount),
-            totalTrades: user.totalTrades + 1
-          };
-        }
-        return user;
-      }));
+    try {
+      const { action, isYes, amount } = params;
+      const result = await (action === 'buy' 
+        ? buyTokens('1', isYes, amount)
+        : sellTokens('1', isYes, amount));
+        
+      console.log(`${action.toUpperCase()} transaction:`, result.txHash);
+      
+    } catch (error) {
+      console.error('Failed to execute trade:', error);
+      throw error;
     }
   };
-
-    // Validate if trade is possible
-    const validateTrade = (params: TradeParams, user: User): boolean => {
-      const { action, isYes, amount } = params;
-      
-      if (action === 'sell') {
-        const availableTokens = isYes ? user.yesTokens : user.noTokens;
-        if (availableTokens < amount) {
-          throw new Error(`Insufficient ${isYes ? 'YES' : 'NO'} tokens for sale`);
-        }
-      }
-      
-      return true;
-    };
-  
-    // Handles on-chain trades
-    const executeOnChainTrade = async (params: TradeParams) => {
-      if (!selectedUser) return;
-      
-      try {
-        const { action, isYes, amount } = params;
-        const result = await (action === 'buy' 
-          ? buyTokens('1', isYes, amount)
-          : sellTokens('1', isYes, amount));
-          
-        console.log(`${action.toUpperCase()} transaction:`, result.txHash);
-        
-      } catch (error) {
-        console.error('Failed to execute trade:', error);
-        throw error;
-      }
-    };
 
   if (!isClient) {
     return <div className="p-4">Loading...</div>;
