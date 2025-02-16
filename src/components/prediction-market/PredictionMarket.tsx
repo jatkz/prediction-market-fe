@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { AlertCircle, TrendingUp, TrendingDown, Wallet, Coins, Check, Copy, Trophy, Database, Search, Plus } from 'lucide-react';
+import { AlertCircle, TrendingUp, TrendingDown, Wallet, Coins, Check, Copy, Trophy, Search, Plus } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Toggle } from "@/components/ui/toggle";
 import { Input } from "@/components/ui/input";
 import { usePredictionMarket } from '@/hooks/usePredictionMarket';
 import { ethers } from 'ethers';
@@ -127,13 +126,15 @@ export const PredictionMarketTest: React.FC = () => {
     
     setTitleIsLoading(true);
     try {
-      // Here you would call your contract to get market details
+      // Call contract to get market details
       const marketDetails = await getMarketDetails(marketId);
       setMarketQuestion(marketDetails.question);
-      // Set other market state as needed
+      // Make sure the input field shows the current marketId
+      setMarketId(marketId); // This ensures the input reflects the current market
     } catch (error) {
       console.error('Failed to load market:', error);
-      // Could add error toast here
+      setMarketId(''); // Clear the input on error
+      setMarketQuestion(''); // Clear the question on error
     } finally {
       setTitleIsLoading(false);
     }
@@ -142,20 +143,19 @@ export const PredictionMarketTest: React.FC = () => {
   const handleCreateMarket = async () => {
     setTitleIsLoading(true);
     try {
-      // You might want to add a modal or form here to get market details
       const question = "Will it rain on March 14, 2025?";
       const endTime = Math.floor(new Date('2025-03-14').getTime() / 1000);
       
       const result = await createMarket(question, endTime);
       
-      // Set the new market ID and load it
+      // Update both the market ID input and question
       setMarketId(result.marketId);
       setMarketQuestion(question);
-      
-      // Could add success toast here
     } catch (error) {
       console.error('Failed to create market:', error);
-      // Could add error toast here
+      // Clear states on error
+      setMarketId('');
+      setMarketQuestion('');
     } finally {
       setTitleIsLoading(false);
     }
@@ -378,7 +378,14 @@ export const PredictionMarketTest: React.FC = () => {
                 type="text"
                 placeholder="Market ID"
                 value={marketId}
-                onChange={(e) => setMarketId(e.target.value)}
+                onChange={(e) => {
+                  const newId = e.target.value;
+                  setMarketId(newId);
+                  if (newId === '') {
+                    // Clear market question when input is cleared
+                    setMarketQuestion('');
+                  }
+                }}
                 className="max-w-[200px]"
               />
               <Button 
