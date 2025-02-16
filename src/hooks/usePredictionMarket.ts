@@ -24,11 +24,11 @@ export function usePredictionMarket(signerAddress: string) {
     setIsLoading(false);
   };
 
-  const createMarket = async (question: string, endTime: number) => {
+  const createMarket = async (question: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await contract.createMarket(question, endTime);
+      const result = await contract.createMarket(question);
       setIsLoading(false);
       return result;
     } catch (error: any) {
@@ -37,24 +37,11 @@ export function usePredictionMarket(signerAddress: string) {
     }
   };
 
-  const buyTokens = async (marketId: string, isYes: boolean, amount: number) => {
+  const tradeTokens = async (marketId: string, isYesToken: boolean, isBuy: boolean, amount: number) => {
     setIsLoading(true);
     setError(null);
     try {
-      const result = await contract.buy(marketId, isYes, amount);
-      setIsLoading(false);
-      return result;
-    } catch (error: any) {
-      handleContractError(error);
-      throw error;
-    }
-  };
-
-  const sellTokens = async (marketId: string, isYes: boolean, amount: number) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const result = await contract.sell(marketId, isYes, amount);
+      const result = await contract.tradeTokens(marketId, isYesToken, isBuy, amount);
       setIsLoading(false);
       return result;
     } catch (error: any) {
@@ -77,19 +64,52 @@ export function usePredictionMarket(signerAddress: string) {
   };
 
   const getMarketDetails = async (marketId: string) => {
-    return {
-        question: "<NOT IMPLEMENTED>",
-        marketId
-    };
-  }
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await contract.getMarketDetails(marketId);
+      setIsLoading(false);
+      return result;
+    } catch (error: any) {
+      handleContractError(error);
+      throw error;
+    }
+  };
+
+  const getTokenBalances = async (marketId: string, address: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await contract.getTokenBalances(marketId, address);
+      setIsLoading(false);
+      return result;
+    } catch (error: any) {
+      handleContractError(error);
+      throw error;
+    }
+  };
+
+  const getBatchTokenBalances = async (marketId: string, addresses: string[]) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await contract.getBatchTokenBalances(marketId, addresses);
+      setIsLoading(false);
+      return result;
+    } catch (error: any) {
+      handleContractError(error);
+      throw error;
+    }
+  };
 
   return {
     isLoading,
     error,
     createMarket,
-    buyTokens,
-    sellTokens,
+    tradeTokens,
     resolveMarket,
-    getMarketDetails
+    getMarketDetails,
+    getTokenBalances,
+    getBatchTokenBalances
   };
 }

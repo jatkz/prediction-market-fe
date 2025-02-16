@@ -28,10 +28,10 @@ export class PredictionMarketContract {
     return this.contract;
   }
 
-  async createMarket(question: string, endTime: number): Promise<{ marketId: string; txHash: string }> {
+  async createMarket(question: string): Promise<{ marketId: string; txHash: string }> {
     try {
       const contract = await this.getContract();
-      const tx = await contract.createMarket(question, endTime);
+      const tx = await contract.createMarket(question);
       const receipt = await tx.wait();
       
       const marketCreatedEvent = receipt.logs[0];
@@ -47,10 +47,10 @@ export class PredictionMarketContract {
     }
   }
 
-  async buy(marketId: string, isYes: boolean, amount: number): Promise<{ txHash: string }> {
+  async tradeTokens(marketId: string, isYesToken: boolean, isBuy: boolean, amount: number): Promise<{ txHash: string }> {
     try {
       const contract = await this.getContract();
-      const tx = await contract.buy(marketId, isYes, amount);
+      const tx = await contract.tradeTokens(marketId, isYesToken, isBuy, amount);
       const receipt = await tx.wait();
 
       return {
@@ -62,25 +62,55 @@ export class PredictionMarketContract {
     }
   }
 
-  async sell(marketId: string, isYes: boolean, amount: number): Promise<{ txHash: string }> {
+  async resolveMarket(marketId: string, outcome: boolean): Promise<{ txHash: string }> {
     try {
       const contract = await this.getContract();
-      const tx = await contract.sell(marketId, isYes, amount);
+      const tx = await contract.resolveMarket(marketId, outcome);
       const receipt = await tx.wait();
 
       return {
         txHash: receipt.hash
       };
     } catch (error) {
-      console.error('Error selling tokens:', error);
+      console.error('Error resolving market:', error);
       throw error;
     }
   }
 
-  async resolveMarket(marketId: string, outcome: boolean): Promise<{ txHash: string }> {
+  async getMarketDetails(marketId: string): Promise<any> {
     try {
       const contract = await this.getContract();
-      const tx = await contract.resolveMarket(marketId, outcome);
+      const tx = await contract.getMarketDetails(marketId);
+      const receipt = await tx.wait();
+
+      return {
+        receipt
+      };
+    } catch (error) {
+      console.error('Error resolving market:', error);
+      throw error;
+    }
+  }
+
+  async getTokenBalances(marketId: string, address: string): Promise<any> {
+    try {
+      const contract = await this.getContract();
+      const tx = await contract.getTokenBalances(marketId, address);
+      const receipt = await tx.wait();
+
+      return {
+        txHash: receipt.hash
+      };
+    } catch (error) {
+      console.error('Error resolving market:', error);
+      throw error;
+    }
+  }
+
+  async getBatchTokenBalances(marketId: string, addresses: string[]): Promise<any> {
+    try {
+      const contract = await this.getContract();
+      const tx = await contract.getBatchTokenBalances(marketId, addresses);
       const receipt = await tx.wait();
 
       return {
