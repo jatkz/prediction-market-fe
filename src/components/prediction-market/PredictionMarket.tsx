@@ -1,13 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { AlertCircle, TrendingUp, TrendingDown, Wallet, Coins, Check, Copy, Trophy } from 'lucide-react';
+import { AlertCircle, TrendingUp, TrendingDown, Wallet, Coins, Check, Copy, Trophy, Database, Search, Plus } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-
+import { Toggle } from "@/components/ui/toggle";
+import { Input } from "@/components/ui/input";
+import { usePredictionMarket } from '@/hooks/usePredictionMarket';
 import { ethers } from 'ethers';
 
+interface TradeParams {
+  action: 'buy' | 'sell';
+  isYes: boolean;
+  amount: number;
+  userId?: string;
+}
+
+interface MarketPrices {
+  yesPrice: number;
+  noPrice: number;
+  time: string;
+}
 
 interface User {
   id: string;
@@ -41,28 +55,13 @@ export interface MarketState {
   }>;
 }
 
+
 export const PredictionMarketTest: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
   const [isResolved, setIsResolved] = useState(false);
   const [winner, setWinner] = useState<'yes' | 'no' | null>(null);
-  
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const [marketState, setMarketState] = useState<MarketState>({
-    yesSupply: 1000,
-    noSupply: 1000,
-    yesPrice: 0.5,
-    noPrice: 0.5,
-    collateralPool: 0,
-    priceHistory: [
-      { time: '0', yesPrice: 0.5, noPrice: 0.5 },
-    ]
-  });
-
   const [users, setUsers] = useState<User[]>([
     {
       id: '1',
@@ -105,7 +104,136 @@ export const PredictionMarketTest: React.FC = () => {
       usdcBalance: '0'
     }
   ]);
+  const [marketId, setMarketId] = useState<string>('');
+  const [marketQuestion, setMarketQuestion] = useState<string>('');
+  const [isTitleLoading, setTitleIsLoading] = useState(false);
 
+  const selectedUser = users.find(user => user.id === selectedUserId);
+
+  const {
+    isLoading,
+    error,
+    createMarket,
+    buyTokens,
+    sellTokens,
+    resolveMarket,
+    getMarketDetails
+  } = usePredictionMarket(selectedUser?.ethAddress || '');
+
+
+
+  const handleLoadMarket = async () => {
+    if (!marketId) return;
+    
+    setTitleIsLoading(true);
+    try {
+      // Here you would call your contract to get market details
+      const marketDetails = await getMarketDetails(marketId);
+      setMarketQuestion(marketDetails.question);
+      // Set other market state as needed
+    } catch (error) {
+      console.error('Failed to load market:', error);
+      // Could add error toast here
+    } finally {
+      setTitleIsLoading(false);
+    }
+  };
+  
+  const handleCreateMarket = async () => {
+    setTitleIsLoading(true);
+    try {
+      // You might want to add a modal or form here to get market details
+      const question = "Will it rain on March 14, 2025?";
+      const endTime = Math.floor(new Date('2025-03-14').getTime() / 1000);
+      
+      const result = await createMarket(question, endTime);
+      
+      // Set the new market ID and load it
+      setMarketId(result.marketId);
+      setMarketQuestion(question);
+      
+      // Could add success toast here
+    } catch (error) {
+      console.error('Failed to create market:', error);
+      // Could add error toast here
+    } finally {
+      setTitleIsLoading(false);
+    }
+  };
+  
+
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const [marketState, setMarketState] = useState<MarketState>({
+    yesSupply: 1000,
+    noSupply: 1000,
+    yesPrice: 0.5,
+    noPrice: 0.5,
+    collateralPool: 0,
+    priceHistory: [
+      { time: '0', yesPrice: 0.5, noPrice: 0.5 },
+    ]
+  });
+
+
+  const handleBuy = async (isYes: boolean) => {
+    if (!selectedUser) return;
+    
+    try {
+      const result = await buyTokens('1', isYes, tradeAmount);
+      console.log('Buy transaction:', result.txHash);
+      // Update UI or fetch new balances
+    } catch (error) {
+      console.error('Failed to buy tokens:', error);
+    }
+  };
+
+  const handleSell = async (isYes: boolean) => {
+    if (!selectedUser) return;
+    
+    try {
+      const result = await sellTokens('1', isYes, tradeAmount);
+      console.log('Sell transaction:', result.txHash);
+      // Update UI or fetch new balances
+    } catch (error) {
+      console.error('Failed to sell tokens:', error);
+    }
+  };
+
+  const handleResolveMarket = async () => {
+    if (!winner) return;
+    
+    try {
+      const result = await resolveMarket('1', winner === 'yes');
+      console.log('Resolve transaction:', result.txHash);
+      setIsResolved(true);
+      // Update UI or fetch new balances
+    } catch (error) {
+      console.error('Failed to resolve market:', error);
+    }
+  };
+  
+    // Main trade handler
+    const handleTrade = async (action: 'buy' | 'sell', isYes: boolean) => {
+      const tradeParams: TradeParams = {
+        action,
+        isYes,
+        amount: Number(tradeAmount),
+        userId: selectedUser?.id
+      };
+
+      try {
+          await executeOnChainTrade(tradeParams);
+      } catch (error) {
+        // Handle error (could show a notification or alert)
+        console.error('Trade failed:', error);
+      }
+    };
+
+  
   useEffect(() => {
     const fetchBalances = async () => {
       const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL);
@@ -197,18 +325,95 @@ export const PredictionMarketTest: React.FC = () => {
     }
   };
 
+    // Validate if trade is possible
+    const validateTrade = (params: TradeParams, user: User): boolean => {
+      const { action, isYes, amount } = params;
+      
+      if (action === 'sell') {
+        const availableTokens = isYes ? user.yesTokens : user.noTokens;
+        if (availableTokens < amount) {
+          throw new Error(`Insufficient ${isYes ? 'YES' : 'NO'} tokens for sale`);
+        }
+      }
+      
+      return true;
+    };
+  
+    // Handles on-chain trades
+    const executeOnChainTrade = async (params: TradeParams) => {
+      if (!selectedUser) return;
+      
+      try {
+        const { action, isYes, amount } = params;
+        const result = await (action === 'buy' 
+          ? buyTokens('1', isYes, amount)
+          : sellTokens('1', isYes, amount));
+          
+        console.log(`${action.toUpperCase()} transaction:`, result.txHash);
+        
+      } catch (error) {
+        console.error('Failed to execute trade:', error);
+        throw error;
+      }
+    };
+
   if (!isClient) {
     return <div className="p-4">Loading...</div>;
   }
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-bold">
-            Prediction Market: Will it rain on March 14, 2025?
-          </h2>
+      {/* Mode Toggle */}
+      <div className="mb-6 flex items-center justify-between bg-white rounded-lg shadow-lg p-4">
+        <h2 className="text-xl font-bold">
+          Prediction Market: Will it rain on March 14, 2025?
+        </h2>
+        <div className="flex items-center space-x-2">
+
+        <div className="mb-6 space-y-4">
+
+          <div className="flex items-center gap-3 bg-white rounded-lg shadow-lg p-4">
+            <div className="flex-1 flex items-center gap-2">
+              <Input
+                type="text"
+                placeholder="Market ID"
+                value={marketId}
+                onChange={(e) => setMarketId(e.target.value)}
+                className="max-w-[200px]"
+              />
+              <Button 
+                variant="secondary"
+                size="sm"
+                onClick={handleLoadMarket}
+                disabled={!marketId || isLoading}
+              >
+                {isLoading ? (
+                  <span className="flex items-center">
+                    Loading...
+                  </span>
+                ) : (
+                  <span className="flex items-center">
+                    <Search className="w-4 h-4 mr-1" />
+                    
+                  </span>
+                )}
+              </Button>
+            </div>
+
+            <Button
+              variant="outline"
+              onClick={handleCreateMarket}
+              disabled={isLoading}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              New
+            </Button>
+          </div>
         </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
 
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -239,26 +444,44 @@ export const PredictionMarketTest: React.FC = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row items-center gap-2">
-              <input 
-                type="number" 
-                value={tradeAmount}
-                onChange={(e) => setTradeAmount(Number(e.target.value))}
-                className="w-full sm:w-auto border p-2 rounded-lg"
-              />
+          <div className="flex flex-col sm:flex-row items-center gap-2">
+            <input 
+              type="number" 
+              value={tradeAmount}
+              onChange={(e) => setTradeAmount(Number(e.target.value))}
+              className="w-full sm:w-auto border p-2 rounded-lg"
+            />
+            <div className="grid grid-cols-2 gap-2 w-full sm:w-auto">
               <button 
-                onClick={() => simulateTrade(true, selectedUser || undefined)}
-                className="w-full sm:w-auto bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                onClick={() => handleTrade('buy', true)}
+                disabled={(isLoading || !selectedUser)}
+                className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50"
               >
                 Buy YES
               </button>
               <button 
-                onClick={() => simulateTrade(false, selectedUser || undefined)}
-                className="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                onClick={() => handleTrade('sell', true)}
+                disabled={(isLoading || !selectedUser)}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                Sell YES
+              </button>
+              <button 
+                onClick={() => handleTrade('buy', false)}
+                disabled={(isLoading || !selectedUser)}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
               >
                 Buy NO
               </button>
+              <button 
+                onClick={() => handleTrade('sell', false)}
+                disabled={(isLoading || !selectedUser)}
+                className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50"
+              >
+                Sell NO
+              </button>
             </div>
+          </div>
 
             <div className="flex items-center space-x-2 text-amber-600">
               <AlertCircle size={20} />
@@ -274,9 +497,9 @@ export const PredictionMarketTest: React.FC = () => {
                 <Card 
                 key={user.id}
                 className={`cursor-pointer transition-colors ${
-                  selectedUser === user.id ? 'ring-2 ring-blue-500' : ''
+                  selectedUserId === user.id ? 'ring-2 ring-blue-500' : ''
                 }`}
-                onClick={() => setSelectedUser(user.id === selectedUser ? null : user.id)}
+                onClick={() => setSelectedUserId(user.id === selectedUserId ? null : user.id)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-center space-x-3">
