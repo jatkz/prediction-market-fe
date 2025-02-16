@@ -101,7 +101,8 @@ export const PredictionMarketTest: React.FC = () => {
   const [marketQuestion, setMarketQuestion] = useState<string>('');
   const [isTitleLoading, setTitleIsLoading] = useState(false);
   const [tradeAmount, setTradeAmount] = useState(100);
-  const [isYesBuy, setIsYesBuy] = useState<[boolean, boolean]>([true,true]);
+  const [isYes, setYes] = useState<boolean>(true);
+  const [isBuy, setBuy] = useState<boolean>(true);
 
   const selectedUser = users.find(user => user.id === selectedUserId);
 
@@ -201,8 +202,8 @@ export const PredictionMarketTest: React.FC = () => {
     if (!selectedUser) return;
     
     try {
-      const result = await tradeTokens(marketId, isYesBuy[0], isYesBuy[1], tradeAmount);
-      console.log(`${isYesBuy} transaction:`, result.txHash);
+      const result = await tradeTokens(marketId, isYes, isBuy, tradeAmount);
+      console.log(`Transaction:`, result.txHash);
     } catch (error) {
       console.error('Failed to execute trade:', error);
       throw error;
@@ -358,60 +359,62 @@ export const PredictionMarketTest: React.FC = () => {
                 onChange={(e) => setTradeAmount(Number(e.target.value))}
                 className="w-full sm:w-auto border p-2 rounded-lg"
               />
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row items-center gap-2">
                 <div className="grid grid-cols-2 gap-2">
                   <button 
-                    onClick={() => setIsYesBuy([true, true])}
+                    onClick={() => setBuy(true)}
                     disabled={(isLoading)}
                     className={`px-4 py-2 rounded-lg transition-colors disabled:opacity-50 
-                      ${isYesBuy[0] === true && isYesBuy[1] === true
+                      ${isBuy === true
                         ? 'bg-green-700 text-white ring-2 ring-green-400 ring-offset-2'
                         : 'bg-green-500 text-white hover:bg-green-600'
                       }`}
                   >
-                    Buy YES
+                    Buy
                   </button>
                   <button 
-                    onClick={() => setIsYesBuy([true, false])}
+                    onClick={() => setBuy(false)}
                     disabled={(isLoading)}
                     className={`px-4 py-2 rounded-lg transition-colors disabled:opacity-50
-                      ${isYesBuy[0] === true && isYesBuy[1] === false
+                      ${isBuy === false
                         ? 'bg-red-700 text-white ring-2 ring-red-400 ring-offset-2'
                         : 'bg-red-500 text-white hover:bg-red-600'
                       }`}
                   >
-                    Sell YES
+                    Sell
                   </button>
                   <button 
-                    onClick={() => setIsYesBuy([false, true])}
+                    onClick={() => setYes(true)}
                     disabled={(isLoading)}
                     className={`px-4 py-2 rounded-lg transition-colors disabled:opacity-50
-                      ${isYesBuy[0] === false && isYesBuy[1] === true
+                      ${isYes === true
                         ? 'bg-blue-700 text-white ring-2 ring-blue-400 ring-offset-2'
                         : 'bg-blue-500 text-white hover:bg-blue-600'
                       }`}
                   >
-                    Buy NO
+                    Yes
                   </button>
                   <button 
-                    onClick={() => setIsYesBuy([false, false])}
+                    onClick={() => setYes(false)}
                     disabled={(isLoading)}
                     className={`px-4 py-2 rounded-lg transition-colors disabled:opacity-50
-                      ${isYesBuy[0] === false && isYesBuy[1] === false
+                      ${isYes === false
                         ? 'bg-purple-700 text-white ring-2 ring-purple-400 ring-offset-2'
                         : 'bg-purple-500 text-white hover:bg-purple-600'
                       }`}
                   >
-                    Sell NO
+                    NO
                   </button>
                 </div>
-                <button 
-                  onClick={handleTradeTokens}
-                  disabled={(isLoading)}
-                  className="w-full sm:w-auto bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
-                >
-                  Execute
-                </button>
+                <div className="flex items-center justify-center h-full">
+                  <button 
+                    onClick={handleTradeTokens}
+                    disabled={(isLoading)}
+                    className="inline-flex bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50"
+                  >
+                    Execute
+                  </button>
+                </div>
               </div>
             </div>
           </div>
