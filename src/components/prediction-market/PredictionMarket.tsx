@@ -366,8 +366,8 @@ export const PredictionMarketTest: React.FC = () => {
                     disabled={(isLoading)}
                     className={`px-4 py-2 rounded-lg transition-colors disabled:opacity-50 
                       ${isBuy === true
-                        ? 'bg-green-700 text-white ring-2 ring-green-400 ring-offset-2'
-                        : 'bg-green-500 text-white hover:bg-green-600'
+                        ? 'bg-green-600 text-white ring-2 ring-green-400 ring-offset-2'
+                        : 'bg-green-200 text-green-700 hover:bg-green-300'
                       }`}
                   >
                     Buy
@@ -377,8 +377,8 @@ export const PredictionMarketTest: React.FC = () => {
                     disabled={(isLoading)}
                     className={`px-4 py-2 rounded-lg transition-colors disabled:opacity-50
                       ${isBuy === false
-                        ? 'bg-red-700 text-white ring-2 ring-red-400 ring-offset-2'
-                        : 'bg-red-500 text-white hover:bg-red-600'
+                        ? 'bg-red-600 text-white ring-2 ring-red-400 ring-offset-2'
+                        : 'bg-red-200 text-red-700 hover:bg-red-300'
                       }`}
                   >
                     Sell
@@ -388,8 +388,8 @@ export const PredictionMarketTest: React.FC = () => {
                     disabled={(isLoading)}
                     className={`px-4 py-2 rounded-lg transition-colors disabled:opacity-50
                       ${isYes === true
-                        ? 'bg-blue-700 text-white ring-2 ring-blue-400 ring-offset-2'
-                        : 'bg-blue-500 text-white hover:bg-blue-600'
+                        ? 'bg-blue-600 text-white ring-2 ring-blue-400 ring-offset-2'
+                        : 'bg-blue-200 text-blue-700 hover:bg-blue-300'
                       }`}
                   >
                     Yes
@@ -399,8 +399,8 @@ export const PredictionMarketTest: React.FC = () => {
                     disabled={(isLoading)}
                     className={`px-4 py-2 rounded-lg transition-colors disabled:opacity-50
                       ${isYes === false
-                        ? 'bg-purple-700 text-white ring-2 ring-purple-400 ring-offset-2'
-                        : 'bg-purple-500 text-white hover:bg-purple-600'
+                        ? 'bg-purple-600 text-white ring-2 ring-purple-400 ring-offset-2'
+                        : 'bg-purple-200 text-purple-700 hover:bg-purple-300'
                       }`}
                   >
                     NO
