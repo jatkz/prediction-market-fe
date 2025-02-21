@@ -10,6 +10,7 @@
     "check-balances": "node --loader ts-node/esm scripts/checkBalances.ts"
   },
   "dependencies": {
+    "@neynar/nodejs-sdk": "^2.13.1",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-radio-group": "^1.2.3",
     "@radix-ui/react-slot": "^1.1.2",

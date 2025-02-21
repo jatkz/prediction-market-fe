@@ -1,14 +1,14 @@
 // src/lib/usePredictionMarket.ts
 import { ethers } from 'ethers';
 
-const CONTRACT_ABI = [
+export const CONTRACT_ABI = [
   "function createMarket(string question, uint256 endTime) external returns (uint256)",
   "function buy(uint256 marketId, bool isYes, uint256 amount) external",
   "function sell(uint256 marketId, bool isYes, uint256 amount) external",
   "function resolveMarket(uint256 marketId, bool outcome) external"
 ];
 
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string;
+export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string;
 
 export class PredictionMarketContract {
   private contract: ethers.Contract | null = null;
