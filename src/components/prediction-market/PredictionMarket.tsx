@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { AlertCircle, TrendingUp, TrendingDown, Wallet, Coins, Check, Copy, Trophy, Search, Plus } from 'lucide-react';
@@ -48,8 +50,12 @@ export interface MarketState {
   }>;
 }
 
+// Update the component props
+export interface PredictionMarketProps {
+  marketId: string;
+}
 
-export const PredictionMarketTest: React.FC = () => {
+export const PredictionMarketTest = ({ marketId }: PredictionMarketProps) => {
   const [isClient, setIsClient] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
@@ -97,7 +103,6 @@ export const PredictionMarketTest: React.FC = () => {
       usdcBalance: '0'
     }
   ]);
-  const [marketId, setMarketId] = useState<string>('');
   const [marketQuestion, setMarketQuestion] = useState<string>('');
   const [isTitleLoading, setTitleIsLoading] = useState(false);
   const [tradeAmount, setTradeAmount] = useState(100);
@@ -126,12 +131,16 @@ export const PredictionMarketTest: React.FC = () => {
     getBatchTokenBalances
   } = usePredictionMarket(selectedUser?.ethAddress || '');
 
+  // Load market details when component mounts or marketId changes
+  useEffect(() => {
+    if (marketId) {
+      handleLoadMarket();
+    }
+  }, [marketId]);
+
   const handleLoadMarket = async () => {
-    if (!marketId) return;
-    
     setTitleIsLoading(true);
     try {
-      // Call contract to get market details
       const marketDetails = await getMarketDetails(marketId);
       setMarketQuestion(marketDetails.question);
             
@@ -139,7 +148,6 @@ export const PredictionMarketTest: React.FC = () => {
       const userAddresses = users.map(user => user.ethAddress);
       const balances = await getBatchTokenBalances(marketId, userAddresses);
       
-      // Update users with their token balances
       const updatedUsers = users.map((user, index) => ({
         ...user,
         yesTokens: Number(balances.yesBalances[index]),
@@ -147,12 +155,8 @@ export const PredictionMarketTest: React.FC = () => {
       }));
       
       setUsers(updatedUsers);
-      
-      // Make sure the input field shows the current marketId
-      setMarketId(marketId); // This ensures the input reflects the current market
     } catch (error) {
       console.error('Failed to load market:', error);
-      setMarketId(''); // Clear the input on error
       setMarketQuestion(''); // Clear the question on error
     } finally {
       setTitleIsLoading(false);
@@ -168,12 +172,10 @@ export const PredictionMarketTest: React.FC = () => {
       const result = await createMarket(question);
       
       // Update both the market ID input and question
-      setMarketId(result.marketId);
       setMarketQuestion(question);
     } catch (error) {
       console.error('Failed to create market:', error);
-      // Clear states on error
-      setMarketId('');
+      // Only clear the question
       setMarketQuestion('');
     } finally {
       setTitleIsLoading(false);
@@ -264,61 +266,10 @@ export const PredictionMarketTest: React.FC = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
-      {/* Mode Toggle */}
       <div className="mb-6 flex items-center justify-between bg-white rounded-lg shadow-lg p-4">
         <h2 className="text-xl font-bold">
-          Prediction Market: Will it rain on March 14, 2025?
+          {marketQuestion || 'Loading market...'}
         </h2>
-        <div className="flex items-center space-x-2">
-
-        <div className="mb-6 space-y-4">
-
-          <div className="flex items-center gap-3 bg-white rounded-lg shadow-lg p-4">
-            <div className="flex-1 flex items-center gap-2">
-              <Input
-                type="text"
-                placeholder="Market ID"
-                value={marketId}
-                onChange={(e) => {
-                  const newId = e.target.value;
-                  setMarketId(newId);
-                  if (newId === '') {
-                    // Clear market question when input is cleared
-                    setMarketQuestion('');
-                  }
-                }}
-                className="max-w-[200px]"
-              />
-              <Button 
-                variant="secondary"
-                size="sm"
-                onClick={handleLoadMarket}
-                disabled={!marketId || isLoading}
-              >
-                {isLoading ? (
-                  <span className="flex items-center">
-                    Loading...
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    <Search className="w-4 h-4 mr-1" />
-                    
-                  </span>
-                )}
-              </Button>
-            </div>
-
-            <Button
-              variant="outline"
-              onClick={handleCreateMarket}
-              disabled={isLoading}
-            >
-              <Plus className="w-4 h-4 mr-1" />
-              New
-            </Button>
-          </div>
-        </div>
-        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
@@ -585,5 +536,3 @@ export const PredictionMarketTest: React.FC = () => {
     </div>
   );
 };
-
-export default PredictionMarketTest;

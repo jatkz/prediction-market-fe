@@ -1,12 +1,7 @@
 'use client';
 
-import PredictionMarketTest from '@/components/prediction-market/PredictionMarket';
-
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <main className="min-h-screen bg-gray-50">
-      <PredictionMarketTest />
-    </main>
-  );
+  redirect('/markets');
 }
