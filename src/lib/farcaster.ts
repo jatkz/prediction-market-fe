@@ -86,6 +86,8 @@ class NeynarFetcher {
       const response = await this.client.get(`/cast/search?${params.toString()}`);
       const { result } = response.data;
 
+    //   console.log(result.casts[0]);
+
       const casts = result.casts.map((cast: any) => ({
         hash: cast.hash,
         author: {
@@ -96,7 +98,7 @@ class NeynarFetcher {
         },
         text: cast.text,
         timestamp: new Date(cast.timestamp),
-        mentions: cast.mentions.map((m: any) => m.username),
+        mentions: cast.mentioned_profiles.map((m: any) => m.username),
         reactions: {
           likes: cast.reactions.likes,
           recasts: cast.reactions.recasts

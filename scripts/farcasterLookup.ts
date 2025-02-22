@@ -1,4 +1,12 @@
 import { NeynarFetcher } from "../src/lib/farcaster";
+import * as dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Setup dirname for ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 
 // Example usage:
 async function main() {
@@ -11,15 +19,17 @@ async function main() {
   
     try {
       // Example: Search for mentions from the last month
-      const endDate = new Date();
-      const startDate = new Date();
-      startDate.setMonth(startDate.getMonth() - 1);
-  
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - 1);
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
       // Search a single page of mentions
       const result = await fetcher.searchMentions({
         username: 'asset-trading-ch',
-        startDate,
-        endDate,
+        startDate: sevenDaysAgo,
+        // endDate,
         limit: 50,
         priorityMode: false  // Only return results from power badge users and followed users
       });
@@ -31,7 +41,8 @@ async function main() {
           Text: ${cast.text}
           Time: ${cast.timestamp}
           Likes: ${cast.reactions.likes}
-          Recasts: ${cast.reactions.recasts}
+          Recasts: ${cast.reactions.recasts},
+          Mentions: ${cast.mentions},
           Hash: ${cast.hash}
         `);
       });
@@ -49,3 +60,5 @@ async function main() {
       console.error('Failed to search mentions:', error);
     }
   }
+
+main().catch(error => console.error("Error in main function:", error));
