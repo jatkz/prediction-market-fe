@@ -7,9 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "gen-keys": "node --loader ts-node/esm scripts/generateKeys.ts",
-    "check-balances": "node --loader ts-node/esm scripts/checkBalances.ts",
-    "anthropic": "node --loader ts-node/esm scripts/anthropic_api.ts"
+    "gen-keys": "node --no-warnings --loader ts-node/esm scripts/generateKeys.ts",
+    "check-balances": "node --no-warnings --loader ts-node/esm scripts/checkBalances.ts",
+    "anthropic": "node --no-warnings --loader ts-node/esm scripts/anthropic_api.ts"
   },
   "dependencies": {
     "@neynar/nodejs-sdk": "^2.13.1",
