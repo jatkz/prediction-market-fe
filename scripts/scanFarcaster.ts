@@ -2,12 +2,49 @@ import { NeynarFetcher } from "../src/lib/farcaster";
 import * as dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
+import { writeFile } from 'fs/promises';
 // Setup dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
+import readline from 'readline';
 
+function createPrompt(): readline.Interface {
+  return readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+}
+
+async function askYesNo(question: string): Promise<boolean> {
+  const rl = createPrompt();
+  
+  try {
+    const answer = await new Promise<string>((resolve) => {
+      rl.question(`${question} (y/n): `, resolve);
+    });
+    
+    const normalizedAnswer = answer.toLowerCase().trim();
+    return normalizedAnswer === 'y' || normalizedAnswer === 'yes';
+  } finally {
+    rl.close();
+  }
+}
+
+interface SavedData {
+    fetchDate: string;
+    results: {
+        totalCount: number;
+        casts: any[];
+    };
+}
+  
+  async function saveToJson(data: SavedData) {
+    const filePath = path.resolve(__dirname, '../data/mentions.json');
+    await writeFile(filePath, JSON.stringify(data, null, 2));
+    console.log(`Data saved to ${filePath}`);
+  }
+  
 // Example usage:
 async function main() {
     const apiKey = process.env.NEYNAR_API_KEY;
@@ -46,15 +83,18 @@ async function main() {
           Hash: ${cast.hash}
         `);
       });
+
+    // Prepare data for saving
+    const dataToSave: SavedData = {
+        fetchDate: new Date().toISOString(),
+        results: {
+            totalCount: result.casts.length,
+            casts: result.casts
+        }
+      };
   
-      // Or search all mentions (will paginate automatically)
-      const allMentions = await fetcher.searchAllMentions({
-        username: 'asset-trading-ch',
-        startDate,
-        endDate
-      });
-  
-      console.log(`Found ${allMentions.length} total mentions in the last month`);
+      // Save to JSON file
+      await saveToJson(dataToSave);
   
     } catch (error) {
       console.error('Failed to search mentions:', error);

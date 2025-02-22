@@ -1,0 +1,50 @@
+{
+  "fetchDate": "2025-02-22T18:57:57.701Z",
+  "results": {
+    "singlePageResults": {
+      "totalCount": 2,
+      "casts": [
+        {
+          "hash": "0x097315e0083f207db0309fca3fbf61913f9f04e4",
+          "author": {
+            "username": "tokuj",
+            "displayName": "Jared",
+            "pfpUrl": "https://i.imgur.com/l4oLrSt.jpg",
+            "fid": 238470
+          },
+          "text": "@asset-trading-ch is it going to rain in Denver March 1st 2025? USDC",
+          "timestamp": "2025-02-22T18:21:02.000Z",
+          "mentions": [
+            "asset-trading-ch"
+          ],
+          "reactions": {
+            "likes": [],
+            "recasts": []
+          }
+        },
+        {
+          "hash": "0xb1c420a99ca660839bffa2b335f6ecb4aeaf0c17",
+          "author": {
+            "username": "tokuj",
+            "displayName": "Jared",
+            "pfpUrl": "https://i.imgur.com/l4oLrSt.jpg",
+            "fid": 238470
+          },
+          "text": "@asset-trading-ch hello! Are the mavericks or the Lakers going to win the game on Feb. 25th 2025?",
+          "timestamp": "2025-02-22T18:19:48.000Z",
+          "mentions": [
+            "asset-trading-ch"
+          ],
+          "reactions": {
+            "likes": [],
+            "recasts": []
+          }
+        }
+      ]
+    },
+    "allResults": {
+      "totalCount": 0,
+      "casts": []
+    }
+  }
+}
