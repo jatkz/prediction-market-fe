@@ -13,6 +13,7 @@
     "farcaster": "tsx scripts/farcasterLookup.ts"
   },
   "dependencies": {
+    "@farcaster/hub-nodejs": "^0.12.7",
     "@neynar/nodejs-sdk": "^2.13.1",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-radio-group": "^1.2.3",
