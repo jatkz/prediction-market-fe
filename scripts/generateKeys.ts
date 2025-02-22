@@ -1,5 +1,5 @@
 // generateKeys.js
-const { ethers } = require('ethers');
+import { ethers } from 'ethers';
 
 function generateKeyPairs() {
   const traders = ['ALICE', 'BOB', 'CHARLIE', 'DIANA'];
