@@ -86,6 +86,7 @@ async function getPredictionMarketResponse(
 
 // Example usage
 async function main() {
+  // Test all 3 cases
   // const marketExample = "Will ETH price exceed $3000 by the end of March? Betting with USDC (0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48)";
   // const marketExample = "Will ETH price exceed $3000 by the end of March? Betting with USDC";
   const marketExample = "Will ETH price exceed $3000 by the end of March? Use 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48";
