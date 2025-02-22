@@ -41,8 +41,8 @@ async function main() {
           Text: ${cast.text}
           Time: ${cast.timestamp}
           Likes: ${cast.reactions.likes}
-          Recasts: ${cast.reactions.recasts},
-          Mentions: ${cast.mentions},
+          Recasts: ${cast.reactions.recasts}
+          Mentions: ${cast.mentions}
           Hash: ${cast.hash}
         `);
       });
