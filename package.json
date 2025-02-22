@@ -9,7 +9,8 @@
     "start": "next start",
     "gen-keys": "node --no-warnings --loader ts-node/esm scripts/generateKeys.ts",
     "check-balances": "node --no-warnings --loader ts-node/esm scripts/checkBalances.ts",
-    "anthropic": "node --no-warnings --loader ts-node/esm scripts/anthropic_api.ts"
+    "anthropic": "node --no-warnings --loader ts-node/esm scripts/anthropicApi.ts",
+    "farcaster": "node --no-warnings --loader ts-node/esm scripts/farcasterLookup.ts"
   },
   "dependencies": {
     "@neynar/nodejs-sdk": "^2.13.1",
