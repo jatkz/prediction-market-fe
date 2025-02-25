@@ -10,7 +10,8 @@
     "gen-keys": "tsx scripts/generateKeys.ts",
     "check-balances": "tsx scripts/checkBalances.ts",
     "anthropic": "tsx scripts/anthropicApi.ts",
-    "farcaster": "tsx scripts/scanFarcaster.ts"
+    "farcaster": "tsx scripts/scanFarcaster.ts",
+    "createMarket": "tsx scripts/test.ts"
   },
   "dependencies": {
     "@farcaster/hub-nodejs": "^0.12.7",
@@ -34,7 +35,8 @@
     "tailwindcss-animate": "^1.0.7",
     "twitter-api-v2": "^1.20.0",
     "viem": "^2.23.4",
-    "wagmi": "^2.14.11"
+    "wagmi": "^2.14.11",
+    "web3": "^4.16.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
