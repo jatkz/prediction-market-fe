@@ -13,7 +13,7 @@ async function createMarket() {
   
   // Parameters for createMarketAndDepositCollateral
   const contractAddress = '0xb74eBC7E97AAddbDBeD4A9427B8383B223FeCA80';
-  const oracle = '0x3B60AebbEd2FFD0774C50f3189018bf045284CF8';
+  const oracle = '0xD6139B01CDf8e2A33df49d85D128397fE8c7419b';
   const creator = wallet.address;
   console.log('creator:', creator);
   const collateralAddress = '0x6A4b68Dca82522d15B30456ae03736aA33483789';

@@ -36,14 +36,6 @@ export async function createMarket(collateralTokenAddress?: string|undefined) {
   
   try {
     // First approve the MarketMakerHook to spend your tokens if using ERC20 as collateral
-    const erc20 = new ethers.Contract(
-      collateralAddress,
-      [
-        'function approve(address spender, uint256 amount) external returns (bool)',
-        'function allowance(address owner, address spender) external view returns (uint256)'
-      ],
-      wallet
-    );
     const erc20Interface = new ethers.Interface([
         'function balanceOf(address account) view returns (uint256)',
         'function allowance(address owner, address spender) view returns (uint256)',
@@ -74,25 +66,6 @@ export async function createMarket(collateralTokenAddress?: string|undefined) {
       await approveTx.wait();
       console.log(`Approval transaction: ${approveTx.hash}`);
     }
-    
-    console.log('Contract params:', {
-        oracle,
-        creator,
-        collateralAddress,
-        collateralAmount: collateralAmount.toString()
-      });
-    // When calling the function, log the contract address and ABI
-    console.log('Contract address:', MARKET_MAKER_HOOK_ADDRESS);
-    console.log('Using function:', marketMakerHook.interface.getFunction('createMarketAndDepositCollateral'));
-
-    // Call the contract function
-    // const tx = await marketMakerHook.createMarketAndDepositCollateral(
-    //   oracle,
-    //   creator,
-    //   collateralAddress,
-    //   collateralAmount,
-    //   { gasLimit: 3000000 } // Add a safe gas limit
-    // );
 
     const data = marketMakerHook.interface.encodeFunctionData(
         'createMarketAndDepositCollateral',

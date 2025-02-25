@@ -11,7 +11,7 @@
     "check-balances": "tsx scripts/checkBalances.ts",
     "anthropic": "tsx scripts/anthropicApi.ts",
     "farcaster": "tsx scripts/scanFarcaster.ts",
-    "createMarket": "tsx scripts/test.ts"
+    "createMarket": "tsx scripts/createMarket.ts"
   },
   "dependencies": {
     "@farcaster/hub-nodejs": "^0.12.7",
